@@ -43,12 +43,14 @@ function loadCourses() {
 }
 
 function loadCourseHTML() {
+    $("#container").append(`<span class="title">Select your Course</span>`);
+    $("#container").append(`<div id="locations"></div>`);
     $("#locations").html("");
     for (let i = 0; i < courseOverview.courses.length; i++) {
         $("#locations").append(`
         <div class="location">
             <img src=${courseOverview.courses[i].image}>
-            <span>${courseOverview.courses[i].name}</span>
+            <span style="color:white">${courseOverview.courses[i].name}</span>
             <button onclick="toggleDifficulties(${i})">
                 <span>Select Difficulty</span>
                 <i class="fas fa-chevron-down"></i>
@@ -60,6 +62,10 @@ function loadCourseHTML() {
     `);
         toggleDifficulties(i);
     }
+    if (localStorage.getItem("card") !== null) {
+        $("#container").append(`<button onclick="loadPreviousCard()" class="defBtn">Load Previous Card</button>`);
+    }
+
 }
 
 function toggleDifficulties(index) {
@@ -82,11 +88,32 @@ function toggleDifficulties(index) {
 
 }
 
+function loadPreviousCard() {
+    card = JSON.parse(localStorage.getItem("card"));
+    for (let i = 0; i < card.players.length; i++){
+        let n = card.players[i].name;
+        let h = card.players[i].holes;
+        let p = card.players[i].playerNum;
+        card.players[i] = new Player();
+        card.players[i].name = n;
+        card.players[i].holes = h;
+        card.players[i].playerNum = p;
+    }
+    myCourseIndex = JSON.parse(localStorage.getItem("myCourseIndex"));
+    myDifficultyIndex = JSON.parse(localStorage.getItem("myDifficultyIndex"));
+    generateCardHTML();
+    for (let i = 0; i < card.players.length; i++){
+        buildPlayerRow(i+1, card.players[i].name, card.players[i].holes);
+        card.players[i].setTotals();
+    }
+}
 
 function generateCard(courseIndex, difficultyIndex) {
     card = new Card(courseIndex, difficultyIndex);
     myCourseIndex = courseIndex;
     myDifficultyIndex = difficultyIndex;
+    clearAll();
+    saveAll();
     generateCardHTML();
 }
 
@@ -99,8 +126,9 @@ function buildColumns() {
 function setupTopRows() {
     //First Column
     let difficulty = card.difficulty.teeType[0].toUpperCase() + card.difficulty.teeType.substring(1);
+    let textColor = "#a9aeb9";
     $(`#col0`).append(`<div class="rowbox">Hole</div>
-                      <div class="rowbox" style="background-color: ${card.difficulty.teeHexColor}">${difficulty}</div>
+                      <div class="rowbox" style="background-color: ${card.difficulty.teeHexColor}; color:${textColor}">${difficulty}</div>
                       <div class="rowbox">Par</div>
                       <div class="rowbox">HCP</div>
 `);
@@ -115,7 +143,7 @@ function setupTopRows() {
     }
     console.log("Test: Par OUT:  " + parOutTotal);
     $(`#col10`).append(`<div class="rowbox">OUT</div>
-                      <div class="rowbox" style="background-color: ${card.difficulty.teeHexColor}">${yardsOutTotal}</div>
+                      <div class="rowbox" style="background-color: ${card.difficulty.teeHexColor}; color:${textColor}">${yardsOutTotal}</div>
                       <div class="rowbox">${parOutTotal}</div>
                       <div class="rowbox">${hcpOutTotal}</div>
 `);
@@ -130,7 +158,7 @@ function setupTopRows() {
     }
     console.log("Test: Par IN:  " + parInTotal);
     $(`#col20`).append(`<div class="rowbox">IN</div>
-                      <div class="rowbox" style="background-color: ${card.difficulty.teeHexColor}">${yardsInTotal}</div>
+                      <div class="rowbox" style="background-color: ${card.difficulty.teeHexColor}; color:${textColor}">${yardsInTotal}</div>
                       <div class="rowbox">${parInTotal}</div>
                       <div class="rowbox">${hcpInTotal}</div>
                       
@@ -141,7 +169,7 @@ function setupTopRows() {
     let hcpTotal = hcpOutTotal + hcpInTotal;
     console.log("Test: Par Out:  " + parInTotal);
     $(`#col21`).append(`<div class="rowbox">TOT</div>
-                      <div class="rowbox" style="background-color: ${card.difficulty.teeHexColor}">${yardsTotal}</div>
+                      <div class="rowbox" style="background-color: ${card.difficulty.teeHexColor}; color:${textColor}">${yardsTotal}</div>
                       <div class="rowbox">${parTotal}</div>
                       <div class="rowbox">${hcpTotal}</div>
 `);
@@ -151,7 +179,7 @@ function setupTopRows() {
         if ([0, 10, 20, 21].indexOf(i) === -1) {
             $(`#col${i}`).append(`
                  <div class="rowbox">${holeNum}</div>
-                 <div class="rowbox" style="background-color: ${card.difficulty.teeHexColor}">${card.holes[holeIndex].teeBoxes[myDifficultyIndex].yards}</div>
+                 <div class="rowbox" style="background-color: ${card.difficulty.teeHexColor}; color:${textColor}">${card.holes[holeIndex].teeBoxes[myDifficultyIndex].yards}</div>
                  <div class="rowbox">${card.holes[holeIndex].teeBoxes[myDifficultyIndex].par}</div>
                  <div class="rowbox">${card.holes[holeIndex].teeBoxes[myDifficultyIndex].hcp}</div>
 `);
@@ -160,13 +188,12 @@ function setupTopRows() {
     }
 }
 
-function buildPlayerRow() {
-    let playerNum = card.players.length;
+function buildPlayerRow(playerNum = card.players.length, name = "", holes = "") {
     for (let i = 0; i < 22; i++) {
         let holeNum = i > 9 ? i - 1 : i;
         switch (i) {
             case 0: //Player name
-                $(`#col0`).append(`<input type="text" placeholder="Name" class="nameInput">`);
+                $(`#col0`).append(`<input type="text" placeholder="Name" id="p${playerNum}name" class="nameInput" value="${name}">`);
                 break;
             case 10: //Player Out
                 $(`#col10`).append(`<div id="p${playerNum}o" class="rowbox"></div>`);
@@ -178,7 +205,11 @@ function buildPlayerRow() {
                 $(`#col21`).append(`<div id="p${playerNum}t" class="rowbox"></div>`);
                 break;
             default: //Holes (1-9 : index 1-9) - (10-18 : index 11:19)
-                $(`#col${i}`).append(`<input type="text" id="p${playerNum}h${holeNum}" class="rowbox">`);
+                let holeText = "";
+                if (holes !== ""){
+                    holeText = card.players[playerNum - 1].holes[holeNum - 1];
+                }
+                $(`#col${i}`).append(`<input type="text" id="p${playerNum}h${holeNum}" class="rowbox" value="${holeText}">`);
         }
     }
 }
@@ -190,18 +221,33 @@ function generateCardHTML() {
     $("#card").append(`<div id="scorecard"></div>`);
     buildColumns();
     setupTopRows();
-    $("#card").append('<button class="newPlayerButton" onclick="addPlayer()">Add Player</button>');
+    $("#card").append(`<div id="buttons"></div>`)
+    $("#buttons").append('<button class="defBtn" onclick="addPlayer()">Add Player</button>');
+    $("#buttons").append('<button class="defBtn" onclick="saveAll()"><i class="fas fa-save"></i></button>');
+    $("#buttons").append('<button class="defBtn" onclick="returnToCourses()">Return to course select</button>');
+    $("#buttons").append('<button class="defBtn" onclick="clearAll()">Clear All</button>');
     document.addEventListener('keyup', (event) => {
-        if (event.target.id[1] > 0) {
-            let playerNum = event.target.id[1];
+        if(event.target.id[event.target.id.length - 1] === "e"){ //checking if its the nam"e"
+            console.log(event.target.value);
+            card.players[event.target.id[1] - 1].name = event.target.value;
+        }
+        else if (event.target.id[1] > 0) {
+            let playerNum = Number(event.target.id[1]);
+            console.log(card.players[playerNum - 1].getOut());
             card.players[playerNum - 1].setTotals();
         }
     });
+    document.addEventListener('keydown', (e) => {
+        if (e.which < 48 || e.which > 57)
+        {
+            e.preventDefault();
+        }
+    })
 }
 
 
 function addPlayer() {
-    if(card.players.length <= 3){
+    if (card.players.length <= 3) {
         card.players.push(new Player());
         buildPlayerRow();
     }
@@ -259,14 +305,32 @@ class Player {
     }
 }
 
+function saveAll() {
+    localStorage.setItem('card', JSON.stringify(card));
+    localStorage.setItem('myCourseIndex', JSON.stringify(myCourseIndex));
+    localStorage.setItem('myDifficultyIndex', JSON.stringify(myDifficultyIndex));
+}
+
+function returnToCourses() {
+    $("#container").html("");
+    $("#container").append(`<div id="locations"></div>`);
+    loadCourseHTML();
+}
+
+function clearAll() {
+    card.players = [];
+    localStorage.clear();
+    generateCardHTML();
+}
 
 function setup() {
     loadCourses();
 }
+
 setup();
 
 //TODO: add a select to make it so you can change difficulty
-//TODO: make it mobile friendly by a media query that changes it to vertical format
+//TODO: left off with figuring out how to fix error with setTotals
 
 
 

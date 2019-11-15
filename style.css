@@ -1,5 +1,13 @@
 body, html{
     margin: 0;
+    background-color: #11420e;
+}
+#container{
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
 }
 #locations{
     display:flex;
@@ -31,8 +39,10 @@ body, html{
 
 /*scorecard*/
 #card{
-    width: auto;
+    width: 100%;
     margin: 10px 15px 0 15px;
+    display:flex;
+    flex-direction: column;
 }
 #scorecard{
     width: calc(100% - 30px);
@@ -78,7 +88,7 @@ body, html{
     min-width: 50px;
 }
 input{
-    font-size: 1.5em;
+    font-size: 1.3em;
     text-align: center;
     background-color: #dadfea;
     border: 1px solid black;
@@ -87,9 +97,18 @@ input{
     padding: 0;
     margin: 0;
 }
-
-.newPlayerButton{
-
+#buttons{
+    display:flex;
+    justify-content: space-evenly;
+    width: 100%;
+}
+.defBtn{
+    border: 3px solid black;
+    width: 200px;
+    min-height: 50px;
+    border-radius: 5px;
+    margin-top: 25px;
+    font-size: 1.5em;
 }
 
 @media screen and (max-width: 700px){
