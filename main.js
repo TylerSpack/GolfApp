@@ -98,37 +98,52 @@ function buildColumns() {
 
 function setupTopRows() {
     //First Column
+    let difficulty = card.difficulty.teeType[0].toUpperCase() + card.difficulty.teeType.substring(1);
     $(`#col0`).append(`<div class="rowbox">Hole</div>
-                      <div class="rowbox">${card.difficulty.teeType}</div>
+                      <div class="rowbox" style="background-color: ${card.difficulty.teeHexColor}">${difficulty}</div>
                       <div class="rowbox">Par</div>
+                      <div class="rowbox">HCP</div>
 `);
     //Out column
     let parOutTotal = 0;
+    let yardsOutTotal = 0;
+    let hcpOutTotal = 0;
     for (let i = 0; i < 9; i++) {
         parOutTotal += card.holes[i].teeBoxes[myDifficultyIndex].par;
+        yardsOutTotal += card.holes[i].teeBoxes[myDifficultyIndex].yards;
+        hcpOutTotal += card.holes[i].teeBoxes[myDifficultyIndex].hcp;
     }
     console.log("Test: Par OUT:  " + parOutTotal);
     $(`#col10`).append(`<div class="rowbox">OUT</div>
-                      <div class="rowbox"></div>
+                      <div class="rowbox" style="background-color: ${card.difficulty.teeHexColor}">${yardsOutTotal}</div>
                       <div class="rowbox">${parOutTotal}</div>
+                      <div class="rowbox">${hcpOutTotal}</div>
 `);
     //In Column
     let parInTotal = 0;
+    let yardsInTotal = 0;
+    let hcpInTotal = 0;
     for (let i = 9; i < 18; i++) {
         parInTotal += card.holes[i].teeBoxes[myDifficultyIndex].par;
+        yardsInTotal += card.holes[i].teeBoxes[myDifficultyIndex].yards;
+        hcpInTotal += card.holes[i].teeBoxes[myDifficultyIndex].hcp;
     }
     console.log("Test: Par IN:  " + parInTotal);
     $(`#col20`).append(`<div class="rowbox">IN</div>
-                      <div class="rowbox"></div>
+                      <div class="rowbox" style="background-color: ${card.difficulty.teeHexColor}">${yardsInTotal}</div>
                       <div class="rowbox">${parInTotal}</div>
+                      <div class="rowbox">${hcpInTotal}</div>
                       
 `);
     //Total Column
     let parTotal = parOutTotal + parInTotal;
+    let yardsTotal = yardsOutTotal + yardsInTotal;
+    let hcpTotal = hcpOutTotal + hcpInTotal;
     console.log("Test: Par Out:  " + parInTotal);
     $(`#col21`).append(`<div class="rowbox">TOT</div>
-                      <div class="rowbox"></div>
+                      <div class="rowbox" style="background-color: ${card.difficulty.teeHexColor}">${yardsTotal}</div>
                       <div class="rowbox">${parTotal}</div>
+                      <div class="rowbox">${hcpTotal}</div>
 `);
     for (let i = 0; i < 22; i++) {
         let holeNum = i > 9 ? i - 1 : i;
@@ -136,8 +151,9 @@ function setupTopRows() {
         if ([0, 10, 20, 21].indexOf(i) === -1) {
             $(`#col${i}`).append(`
                  <div class="rowbox">${holeNum}</div>
-                 <div class="rowbox">${card.holes[holeIndex].teeBoxes[myDifficultyIndex].yards}</div>
+                 <div class="rowbox" style="background-color: ${card.difficulty.teeHexColor}">${card.holes[holeIndex].teeBoxes[myDifficultyIndex].yards}</div>
                  <div class="rowbox">${card.holes[holeIndex].teeBoxes[myDifficultyIndex].par}</div>
+                 <div class="rowbox">${card.holes[holeIndex].teeBoxes[myDifficultyIndex].hcp}</div>
 `);
             console.log(holeNum);
         }
