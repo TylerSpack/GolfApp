@@ -92,13 +92,13 @@ function generateCard(courseIndex, difficultyIndex) {
 
 function buildColumns() {
     for (let i = 0; i < 22; i++) {
-        $("#scorecard").append(`<div id="col${i}"></div>`);
+        $("#scorecard").append(`<div id="col${i}" class="col"></div>`);
     }
 }
 
 function setupTopRows() {
     //First Column
-    $(`#col0`).append(`<div class="rowbox header">Hole</div>
+    $(`#col0`).append(`<div class="rowbox">Hole</div>
                       <div class="rowbox">${card.difficulty.teeType}</div>
                       <div class="rowbox">Par</div>
 `);
@@ -150,7 +150,7 @@ function buildPlayerRow() {
         let holeNum = i > 9 ? i - 1 : i;
         switch (i) {
             case 0: //Player name
-                $(`#col0`).append(`<input type="text" placeholder="Name">`);
+                $(`#col0`).append(`<input type="text" placeholder="Name" class="nameInput">`);
                 break;
             case 10: //Player Out
                 $(`#col10`).append(`<div id="p${playerNum}o" class="rowbox"></div>`);
@@ -176,15 +176,19 @@ function generateCardHTML() {
     setupTopRows();
     $("#card").append('<button class="newPlayerButton" onclick="addPlayer()">Add Player</button>');
     document.addEventListener('keyup', (event) => {
-        let playerNum = event.target.id[1];
-        card.players[playerNum - 1].setTotals();
+        if (event.target.id[1] > 0) {
+            let playerNum = event.target.id[1];
+            card.players[playerNum - 1].setTotals();
+        }
     });
 }
 
 
 function addPlayer() {
-    card.players.push(new Player());
-    buildPlayerRow();
+    if(card.players.length <= 3){
+        card.players.push(new Player());
+        buildPlayerRow();
+    }
 }
 
 class Card {
@@ -243,7 +247,6 @@ class Player {
 function setup() {
     loadCourses();
 }
-
 setup();
 
 //TODO: add a select to make it so you can change difficulty
