@@ -84,94 +84,103 @@ function generateCard(courseIndex, difficultyIndex) {
     card = new Card(courseIndex, difficultyIndex);
     myCourseIndex = courseIndex;
     myDifficultyIndex = difficultyIndex;
-    updateCardHTML(courseIndex, difficultyIndex);
-    document.addEventListener('keyup', () => {
-        Player.setHoles();
-        for (let i = 0; i < card.players.length; i++){
-            console.log(card.players[i].getOut());
-            // console.log(card.players[i].getIn());
-            $(`#p${i}o`).html(card.players[i].getOut());
-            $(`#p${i}i`).html(card.players[i].getIn());
-        }
-    });
+    generateCardHTML();
 }
 
-function updateCardHTML(courseIndex, difficultyIndex){
+
+
+
+
+function buildColumns(){
+    for (let i = 0; i < 22; i++){
+        $("#scorecard").append(`<div id="col${i}"></div>`);
+    }
+}
+function setupTopRows(){
+    //First Column
+    $(`#col0`).append(`<div class="rowbox header">Hole</div>
+                      <div class="rowbox">${card.difficulty.teeType}</div>
+                      <div class="rowbox">Par</div>
+`);
+    //Out column
+    let parOutTotal = 0;
+    for (let i = 0; i < 9; i++){
+        parOutTotal += card.holes[i].teeBoxes[myDifficultyIndex].par;
+    }
+    console.log("Test: Par OUT:  " + parOutTotal);
+    $(`#col10`).append(`<div class="rowbox">OUT</div>
+                      <div class="rowbox"></div>
+                      <div class="rowbox">${parOutTotal}</div>
+`);
+    //In Column
+    let parInTotal = 0;
+    for (let i = 9; i < 18; i++){
+        parInTotal += card.holes[i].teeBoxes[myDifficultyIndex].par;
+    }
+    console.log("Test: Par IN:  " + parInTotal);
+    $(`#col20`).append(`<div class="rowbox">IN</div>
+                      <div class="rowbox"></div>
+                      <div class="rowbox">${parInTotal}</div>
+                      
+`);
+    //Total Column
+    let parTotal = parOutTotal + parInTotal;
+    console.log("Test: Par Out:  " + parInTotal);
+    $(`#col21`).append(`<div class="rowbox">TOT</div>
+                      <div class="rowbox"></div>
+                      <div class="rowbox">${parTotal}</div>
+`);
+    for (let i = 0; i < 22; i++){
+        let holeNum = i > 9 ? i - 2 : i - 1;
+        if([0,10,20,21].indexOf(i) === -1){
+                $(`#col${i}`).append(`
+                 <div class="rowbox">${holeNum}</div>
+                 <div class="rowbox">${card.holes[holeNum].teeBoxes[myDifficultyIndex].yards}</div>
+                 <div class="rowbox">${card.holes[holeNum].teeBoxes[myDifficultyIndex].par}</div>
+`);
+                console.log(holeNum);
+        }
+    }
+}
+function buildPlayerRow(){
+    let playerNum = card.players.length + 1;
+    for (let i = 0; i < 22; i++){
+        let holeNum = i > 9 ? i - 1 : i;
+        switch(i){
+            case 0: //Player name
+                $(`#col0`).append(`<input type="text" placeholder="Name">`);
+                break;
+            case 10: //Player Out
+                $(`#col10`).append(`<div id="p${playerNum}o" class="rowbox"></div>`);
+                break;
+            case 20: //Player In
+                $(`#col20`).append(`<div id="p${playerNum}i" class="rowbox"></div>`);
+                break;
+            case 21: //Total
+                $(`#col21`).append(`<div id="p${playerNum}t" class="rowbox"></div>`);
+                break;
+            default: //Holes (1-9 : index 1-9) - (10-18 : index 11:19)
+                $(`#col${i}`).append(`<input type="text" id="p${playerNum}h${holeNum}" class="rowbox">`);
+        }
+    }
+}
+
+function generateCardHTML(){
     $("#container").html("");
     $("#container").append(`<div id="card"></div>`);
     $("#card").append(`<div class="title">Golf Scorecard</div>`);
     $("#card").append(`<div id="scorecard"></div>`);
-    let leftBarStr = `
-    <div class="col">
-        <div class="rowbox">Hole</div>
-        <div class="rowbox">${card.difficulty.teeType}</div>
-        <div class="rowbox">Par</div>`;
-    for (let j = 0; j < card.players.length; j++) {
-        leftBarStr += `<div class="rowbox" id="p${j}">
-                            <input type="text">
-                       </div>`
-    }
-    leftBarStr += `</div>`;
-    $("#scorecard").append(leftBarStr);
-    for (let i = 0; i < 9; i++) {
-        let colStr = `
-        <div class="col">
-            <div class="rowbox">${i + 1}</div>
-            <div class="rowbox">${card.holes[i].teeBoxes[difficultyIndex].yards}</div>
-            <div class="rowbox">${card.holes[i].teeBoxes[difficultyIndex].par}</div>`;
-        for (let j = 0; j < card.players.length; j++) {
-            colStr += `<div class="rowbox" >
-                            <input type="text" id="p${j}h${i}">
-                       </div>`
-        }
-        colStr += `</div>`;
-        $("#scorecard").append(colStr);
-    }
-
-
-    //out col
-    let open = `<div class="col">`;
-    let scores = `<div class="rowbox">OUT</div>`;
-    scores += `<div class="rowbox"></div>` + `<div class="rowbox"></div>`;
-    for (let i = 0; i < card.players.length; i++) {
-        scores += `<div class="rowbox" id="p${i}o"></div>`;
-    }
-    let end = `</div>`;
-    let outScore = open + scores + end;
-    $("#scorecard").append(outScore);
-
-
-    for (let i = 9; i < 18; i++) {
-        let colStr = `
-        <div class="col">
-            <div class="rowbox">${i + 1}</div>
-            <div class="rowbox">${card.holes[i].teeBoxes[difficultyIndex].yards}</div>
-            <div class="rowbox">${card.holes[i].teeBoxes[difficultyIndex].par}</div>`;
-        for (let j = 0; j < card.players.length; j++) {
-            colStr += `<div class="rowbox">
-                            <input type="text" id="p${j}h${i}">
-                      </div>`
-        }
-        colStr += `</div>`;
-        $("#scorecard").append(colStr);
-    }
-
-    //in col
-    let openIN = `<div class="col">`;
-    let scoresIN= `<div class="rowbox">IN</div>`;
-    scoresIN += `<div class="rowbox"></div>` + `<div class="rowbox"></div>`;
-    for (let i = 0; i < card.players.length; i++) {
-        scoresIN += `<div class="rowbox" id="p${i}i"></div>`;
-    }
-    let endIN = `</div>`;
-    let inScore = openIN + scoresIN + endIN;
-    $("#scorecard").append(inScore);
-    $("#container").append(`<button onclick="addPlayer()">Add Player</button>`);
+    buildColumns();
+    setupTopRows();
+    $("#card").append('<button class="newPlayerButton" onclick="addPlayer()">Add Player</button>');
+    // document.addEventListener('keyup', () => {
+    //     console.log(this);
+    // });
 }
 
 function addPlayer() {
     card.players.push(new Player());
-    updateCardHTML(myCourseIndex, myDifficultyIndex);
+    buildPlayerRow();
 }
 
 
@@ -222,6 +231,8 @@ function setup() {
 
 setup();
 
+//TODO: add a select to make it so you can change difficulty
+//TODO: make it mobile friendly by a media query that changes it to vertical format
 
 
 

@@ -32,13 +32,15 @@ body, html{
 /*scorecard*/
 #card{
     width: 90%;
-    margin: 0 auto;
+    margin: 25px auto 0;
 }
 #scorecard{
-    width: 100%;
+    width: calc(100% - 30px);
     background-color: #dadfea;
-    border-radius: 10px;
+    border-radius: 0 0 10px 10px;
     display:flex;
+    justify-content: center;
+    padding: 15px;
 }
 .title{
     font-size: 3em;
@@ -46,6 +48,7 @@ body, html{
     width: 100%;
     height: 100px;
     background-color: green;
+    border-radius: 10px 10px 0 0;
 }
 .col{
     min-width: 50px;
@@ -60,11 +63,23 @@ body, html{
     border: 1px solid black;
     text-align: center;
     justify-content: center;
-}
-.rowbox > input{
     width: 100%;
-    height: 100%;
+    min-width: 50px;
+}
+input{
     font-size: 1.5em;
     text-align: center;
     background-color: #dadfea;
+    border: 1px solid black;
+    width: 100%;
+    height: 50px;
+    padding: 0;
+    margin: 0;
+}
+
+.header{
+    min-width: 150px;
+}
+.newPlayerButton{
+
 }
