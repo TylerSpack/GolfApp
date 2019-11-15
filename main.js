@@ -4,6 +4,8 @@ let courseOverview = [];
 let card;
 let myCourseIndex;
 let myDifficultyIndex;
+
+
 function loadCourses() {
     let courseOverviewPromise = new Promise(((resolve, reject) => {
         let xhttp = new XMLHttpRequest();
@@ -80,6 +82,7 @@ function toggleDifficulties(index) {
 
 }
 
+
 function generateCard(courseIndex, difficultyIndex) {
     card = new Card(courseIndex, difficultyIndex);
     myCourseIndex = courseIndex;
@@ -87,16 +90,13 @@ function generateCard(courseIndex, difficultyIndex) {
     generateCardHTML();
 }
 
-
-
-
-
-function buildColumns(){
-    for (let i = 0; i < 22; i++){
+function buildColumns() {
+    for (let i = 0; i < 22; i++) {
         $("#scorecard").append(`<div id="col${i}"></div>`);
     }
 }
-function setupTopRows(){
+
+function setupTopRows() {
     //First Column
     $(`#col0`).append(`<div class="rowbox header">Hole</div>
                       <div class="rowbox">${card.difficulty.teeType}</div>
@@ -104,7 +104,7 @@ function setupTopRows(){
 `);
     //Out column
     let parOutTotal = 0;
-    for (let i = 0; i < 9; i++){
+    for (let i = 0; i < 9; i++) {
         parOutTotal += card.holes[i].teeBoxes[myDifficultyIndex].par;
     }
     console.log("Test: Par OUT:  " + parOutTotal);
@@ -114,7 +114,7 @@ function setupTopRows(){
 `);
     //In Column
     let parInTotal = 0;
-    for (let i = 9; i < 18; i++){
+    for (let i = 9; i < 18; i++) {
         parInTotal += card.holes[i].teeBoxes[myDifficultyIndex].par;
     }
     console.log("Test: Par IN:  " + parInTotal);
@@ -130,23 +130,25 @@ function setupTopRows(){
                       <div class="rowbox"></div>
                       <div class="rowbox">${parTotal}</div>
 `);
-    for (let i = 0; i < 22; i++){
-        let holeNum = i > 9 ? i - 2 : i - 1;
-        if([0,10,20,21].indexOf(i) === -1){
-                $(`#col${i}`).append(`
+    for (let i = 0; i < 22; i++) {
+        let holeNum = i > 9 ? i - 1 : i;
+        let holeIndex = i > 9 ? i - 2 : i - 1;
+        if ([0, 10, 20, 21].indexOf(i) === -1) {
+            $(`#col${i}`).append(`
                  <div class="rowbox">${holeNum}</div>
-                 <div class="rowbox">${card.holes[holeNum].teeBoxes[myDifficultyIndex].yards}</div>
-                 <div class="rowbox">${card.holes[holeNum].teeBoxes[myDifficultyIndex].par}</div>
+                 <div class="rowbox">${card.holes[holeIndex].teeBoxes[myDifficultyIndex].yards}</div>
+                 <div class="rowbox">${card.holes[holeIndex].teeBoxes[myDifficultyIndex].par}</div>
 `);
-                console.log(holeNum);
+            console.log(holeNum);
         }
     }
 }
-function buildPlayerRow(){
-    let playerNum = card.players.length + 1;
-    for (let i = 0; i < 22; i++){
+
+function buildPlayerRow() {
+    let playerNum = card.players.length;
+    for (let i = 0; i < 22; i++) {
         let holeNum = i > 9 ? i - 1 : i;
-        switch(i){
+        switch (i) {
             case 0: //Player name
                 $(`#col0`).append(`<input type="text" placeholder="Name">`);
                 break;
@@ -165,7 +167,7 @@ function buildPlayerRow(){
     }
 }
 
-function generateCardHTML(){
+function generateCardHTML() {
     $("#container").html("");
     $("#container").append(`<div id="card"></div>`);
     $("#card").append(`<div class="title">Golf Scorecard</div>`);
@@ -173,16 +175,17 @@ function generateCardHTML(){
     buildColumns();
     setupTopRows();
     $("#card").append('<button class="newPlayerButton" onclick="addPlayer()">Add Player</button>');
-    // document.addEventListener('keyup', () => {
-    //     console.log(this);
-    // });
+    document.addEventListener('keyup', (event) => {
+        let playerNum = event.target.id[1];
+        card.players[playerNum - 1].setTotals();
+    });
 }
+
 
 function addPlayer() {
     card.players.push(new Player());
     buildPlayerRow();
 }
-
 
 class Card {
     constructor(courseIndex, difficultyIndex) {
@@ -192,38 +195,50 @@ class Card {
     }
 }
 
-
-class Player{
-    constructor(){
+class Player {
+    constructor() {
         this.name = "";
         this.holes = [];
-        for (let i = 0; i < 18; i++){
+        for (let i = 0; i < 18; i++) {
             this.holes.push("");
         }
+        this.playerNum = card.players.length + 1;
     }
-    static setHoles(){
-        for (let i = 0; i < card.players.length; i++){
-            for (let j = 0; j < 18; j++){
-                let id = "#p" + i + "h" + j;
-                card.players[i].holes[j] = $(id).val();
-            }
+
+    setHoles() {
+        //get values from html inputs into this.holes
+        for (let j = 0; j < 18; j++) {
+            let id = "#p" + this.playerNum + "h" + (j + 1);
+            this.holes[j] = $(id).val();
         }
     }
-    getOut(){
+
+    setTotals() {
+        this.setHoles();
+        let outTotal = this.getOut();
+        let inTotal = this.getIn();
+        $(`#p${this.playerNum}o`).html(outTotal);
+        $(`#p${this.playerNum}i`).html(inTotal);
+        $(`#p${this.playerNum}t`).html(outTotal + inTotal);
+    }
+
+    getOut() {
         let out = 0;
-        for (let i = 0; i < 9; i++){
+        for (let i = 0; i < 9; i++) {
             out += Number(this.holes[i]);
         }
         return out;
     }
-    getIn(){
+
+    getIn() {
         let inTot = 0;
-        for (let i = 9; i < 18; i++){
+        for (let i = 9; i < 18; i++) {
             inTot += Number(this.holes[i]);
         }
         return inTot;
     }
 }
+
 
 function setup() {
     loadCourses();
