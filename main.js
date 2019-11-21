@@ -310,15 +310,21 @@ class Player {
     static gameEnd() {
         $("#playerMessages").html("");
         for (let j = 0; j < card.players.length; j++) {
-            let score = 0;
-            for (let i = 0; i < card.players[j].holes.length; i++) {
-                score += Number(card.players[j].holes[i]);
+            if (card.players[j].name !== ""){
+                let score = 0;
+                let parTotal = 0;
+                for (let i = 0; i < card.players[j].holes.length; i++) {
+                    score += Number(card.players[j].holes[i]);
+                    parTotal += card.holes[i].teeBoxes[myDifficultyIndex].par;
+                }
+
+                if (score > 0) {
+                    $("#playerMessages").append(`<div class="message">${card.players[j].name} scored ${score - parTotal}. Better luck next time!</div>`)
+                } else {
+                    $("#playerMessages").append(`<div class="message">${card.players[j].name} scored ${score - parTotal}. On to the PGA!</div>`)
+                }
             }
-            if (score > 0) {
-                $("#playerMessages").append(`<div class="message">${card.players[j].name} scored ${score}. Better luck next time!</div>`)
-            } else {
-                $("#playerMessages").append(`<div class="message">${card.players[j].name} scored ${score}. On to the PGA!</div>`)
-            }
+
         }
 
     }
@@ -332,6 +338,7 @@ function saveAll() {
 
 function returnToCourses() {
     $("#container").html("");
+    $("#playerMessages").remove();
     loadCourseHTML();
 }
 
@@ -339,6 +346,7 @@ function clearAll() {
     card.players = [];
     localStorage.clear();
     generateCardHTML();
+    $("#playerMessages").html("");
 }
 
 function setup() {
