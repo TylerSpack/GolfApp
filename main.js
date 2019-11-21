@@ -318,7 +318,7 @@ class Player {
                     parTotal += card.holes[i].teeBoxes[myDifficultyIndex].par;
                 }
 
-                if (score > 0) {
+                if (score-parTotal > 0) {
                     $("#playerMessages").append(`<div class="message">${card.players[j].name} scored ${score - parTotal}. Better luck next time!</div>`)
                 } else {
                     $("#playerMessages").append(`<div class="message">${card.players[j].name} scored ${score - parTotal}. On to the PGA!</div>`)
