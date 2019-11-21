@@ -144,7 +144,4 @@ input[type=number]::-webkit-outer-spin-button {
         flex-direction: row;
         min-width: 50px;
     }
-    .rowbox{
-        /*min-width: 50px;*/
-    }
 }
